@@ -1,5 +1,7 @@
 # Gestão de Projetos — Construtora
 
+[![CI](https://github.com/Derkoski/Gest-o-de-Projetos---Desbravador/actions/workflows/ci.yml/badge.svg)](https://github.com/Derkoski/Gest-o-de-Projetos---Desbravador/actions/workflows/ci.yml)
+
 Aplicação para cadastrar projetos de uma construtora, com status e risco, e vincular a eles funcionários aleatórios obtidos da API pública [randomuser.me](https://randomuser.me/).
 
 **Stack:** ASP.NET Core (.NET 10) · EF Core + PostgreSQL · React + TypeScript (Vite, Mantine, TanStack Query) · xUnit + Testcontainers · Docker Compose
