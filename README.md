@@ -1,6 +1,6 @@
 # Gestão de Projetos — Construtora
 
-[![CI](https://github.com/Derkoski/Gest-o-de-Projetos---Desbravador/actions/workflows/ci.yml/badge.svg)](https://github.com/Derkoski/Gest-o-de-Projetos---Desbravador/actions/workflows/ci.yml)
+[![CI](https://github.com/Derkoski/Gestao-de-Projetos-Desbravador/actions/workflows/ci.yml/badge.svg)](https://github.com/Derkoski/Gestao-de-Projetos-Desbravador/actions/workflows/ci.yml)
 
 Aplicação para cadastrar projetos de uma construtora, com status e risco, e vincular a eles funcionários aleatórios obtidos da API pública [randomuser.me](https://randomuser.me/).
 
