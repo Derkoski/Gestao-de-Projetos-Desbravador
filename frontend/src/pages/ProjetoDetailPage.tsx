@@ -163,7 +163,9 @@ function Info({ rotulo, valor }: { rotulo: string; valor: string }) {
 }
 
 function Equipe({ projeto }: { projeto: ProjetoDetalhe }) {
-  const [quantidade, setQuantidade] = useState<number>(3);
+  // Aceita o campo vazio durante a digitação; o botão só fica habilitado com uma quantidade válida.
+  const [quantidade, setQuantidade] = useState<number | string>(3);
+  const quantidadeValida = typeof quantidade === 'number' && quantidade >= 1 ? quantidade : null;
   const vincular = useVincularAleatorios(projeto.id);
   const desvincular = useDesvincular(projeto.id);
 
@@ -200,12 +202,13 @@ function Equipe({ projeto }: { projeto: ProjetoDetalhe }) {
               clampBehavior="strict"
               allowDecimal={false}
               value={quantidade}
-              onChange={(v) => setQuantidade(Number(v) || 1)}
+              onChange={setQuantidade}
             />
             <Button
               leftSection={<IconDice5 size={18} />}
               loading={vincular.isPending}
-              onClick={() => vincular.mutate(quantidade)}
+              disabled={quantidadeValida === null}
+              onClick={() => quantidadeValida && vincular.mutate(quantidadeValida)}
             >
               Sortear e vincular
             </Button>

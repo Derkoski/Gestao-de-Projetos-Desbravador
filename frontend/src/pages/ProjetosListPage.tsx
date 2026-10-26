@@ -23,7 +23,8 @@ import { confirmarExclusao } from '../components/ConfirmarExclusao';
 import { Carregando, ErroAoCarregar, Vazio } from '../components/Estados';
 import { formatarData } from '../domain/format';
 import { MOTIVO_EXCLUSAO_BLOQUEADA, RISCO_OPCOES, STATUS_OPCOES } from '../domain/labels';
-import type { ProjetoResumo, RiscoProjeto, StatusProjeto } from '../types';
+import { normalizarPagina, paginaForaDoIntervalo } from '../domain/paginacao';
+import { RISCO_PROJETO, STATUS_PROJETO, type ProjetoResumo } from '../types';
 
 const TAMANHO_PAGINA = 10;
 
@@ -31,9 +32,10 @@ export function ProjetosListPage() {
   const navigate = useNavigate();
   // Filtros ficam na URL: sobrevivem ao recarregar a página e ao voltar do detalhe.
   const [params, setParams] = useSearchParams();
-  const status = (params.get('status') as StatusProjeto | null) ?? undefined;
-  const risco = (params.get('risco') as RiscoProjeto | null) ?? undefined;
-  const pagina = Number(params.get('pagina') ?? 1);
+  // Valores inválidos na URL (editada à mão ou de um link antigo) são ignorados em vez de gerar erro na API.
+  const status = STATUS_PROJETO.find((s) => s === params.get('status'));
+  const risco = RISCO_PROJETO.find((r) => r === params.get('risco'));
+  const pagina = normalizarPagina(params.get('pagina'));
 
   const [busca, setBusca] = useState(params.get('busca') ?? '');
   const [buscaDebounced] = useDebouncedValue(busca.trim(), 350);
@@ -62,6 +64,14 @@ export function ProjetosListPage() {
     pagina,
     tamanhoPagina: TAMANHO_PAGINA,
   });
+
+  // Se a página atual deixou de existir (ex.: o último projeto dela foi excluído), volta para a última página.
+  const totalPaginas = data?.totalPaginas ?? 0;
+  const foraDoIntervalo = paginaForaDoIntervalo(pagina, totalPaginas);
+  useEffect(() => {
+    if (foraDoIntervalo) atualizarParam('pagina', totalPaginas > 1 ? String(totalPaginas) : null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [foraDoIntervalo, totalPaginas]);
 
   const excluir = useExcluirProjeto();
   const onExcluir = (p: ProjetoResumo) => confirmarExclusao(p.nome, () => excluir.mutate(p.id));
@@ -109,7 +119,7 @@ export function ProjetosListPage() {
         </SimpleGrid>
       </Card>
 
-      {isPending ? (
+      {isPending || foraDoIntervalo ? (
         <Carregando />
       ) : isError ? (
         <ErroAoCarregar error={error} onRetry={refetch} />
