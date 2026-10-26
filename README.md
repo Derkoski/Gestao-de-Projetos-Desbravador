@@ -25,7 +25,7 @@ O enunciado deixa alguns pontos em aberto. Abaixo está cada um deles, a decisã
 | 11 | O mesmo funcionário do randomuser pode ser importado duas vezes? | **Não.** O `login.uuid` do randomuser é gravado com índice único, e um funcionário que já existe é reaproveitado. | Mantém a integridade da base. |
 | 12 | Os funcionários do randomuser são de qualquer nacionalidade? | Por padrão, `nat=br`, para gerar nomes brasileiros. É configurável em `RandomUser:Nacionalidade`, e deixar o valor vazio libera qualquer nacionalidade. | Combina melhor com o contexto de uma construtora brasileira. |
 
-**Fora do escopo** (não foi pedido): autenticação e autorização, auditoria ou histórico de status, CQRS/mediator e pipeline de CI/CD.
+**Fora do escopo** (não foi pedido): autenticação e autorização, auditoria ou histórico de status, CQRS/mediator e deploy automatizado.
 
 ---
 
@@ -73,6 +73,8 @@ npm run dev
 
 ## Testes
 
+### Backend
+
 ```bash
 dotnet test backend/Desbravador.Projetos.slnx
 ```
@@ -87,13 +89,32 @@ dotnet test backend/Desbravador.Projetos.slnx
   - **exigem o Docker em execução**;
   - só a API externa é trocada por um fake, para os testes serem determinísticos.
 
-Checagens do front-end:
+### Front-end
 
 ```bash
 cd frontend
-npm run build   # checagem de tipos + build
+npm test                 # testes (Vitest + Testing Library)
+npm run test:coverage    # testes com relatório de cobertura
 npm run lint
+npm run build            # checagem de tipos + build
 ```
+
+- **48 testes**, rodando em jsdom e com o `fetch` trocado por um fake (não precisam da API no ar):
+  - cliente HTTP: montagem da query, conversão de `ProblemDetails` em erros por campo e mensagens de erro;
+  - regras do front: os 8 status e 3 riscos com rótulos, status que bloqueiam a exclusão, formatação e paginação;
+  - formulário: validação no cliente, envio dos dados, erros do servidor exibidos no campo e aviso de bloqueio da exclusão;
+  - listagem: filtros enviados à API, estado vazio, exclusão com confirmação, exclusão bloqueada, parâmetros inválidos na URL e volta para a última página quando a página atual deixa de existir;
+  - detalhe: equipe vinculada, sortear e vincular, desvincular, exclusão bloqueada, projeto inexistente (404) e "tentar novamente".
+
+### Integração contínua
+
+O workflow [`.github/workflows/ci.yml`](.github/workflows/ci.yml) roda a cada push e pull request:
+
+| Job | O que faz |
+|---|---|
+| Backend | build e testes unitários e de integração (o runner do GitHub tem Docker, então o Testcontainers funciona) |
+| Front-end | lint, testes com cobertura, checagem de tipos e build |
+| Imagens Docker | `docker compose build`, para garantir que a aplicação sobe com um comando |
 
 ---
 
@@ -168,8 +189,9 @@ A documentação interativa completa está no Swagger.
 
 - **Listagem:**
   - busca com debounce e filtros de status e risco guardados na URL, então sobrevivem ao recarregar e ao voltar do detalhe;
-  - paginação;
+  - paginação: ao excluir o último projeto de uma página, a lista volta sozinha para a página anterior;
   - tabela no desktop e cards no celular.
+- **Carregamento:** cada página é um chunk próprio, baixado só quando a rota é acessada, e React e Mantine ficam em chunks separados, que o navegador mantém em cache entre versões.
 - **Formulário:**
   - validação no cliente, espelhando as regras do servidor, e exibição dos erros do servidor por campo;
   - aviso quando o status escolhido vai bloquear a exclusão.
