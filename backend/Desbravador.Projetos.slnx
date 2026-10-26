@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Desbravador.Projetos.Api/Desbravador.Projetos.Api.csproj" />
+    <Project Path="src/Desbravador.Projetos.Application/Desbravador.Projetos.Application.csproj" />
+    <Project Path="src/Desbravador.Projetos.Domain/Desbravador.Projetos.Domain.csproj" />
+    <Project Path="src/Desbravador.Projetos.Infrastructure/Desbravador.Projetos.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Desbravador.Projetos.IntegrationTests/Desbravador.Projetos.IntegrationTests.csproj" />
+    <Project Path="tests/Desbravador.Projetos.UnitTests/Desbravador.Projetos.UnitTests.csproj" />
+  </Folder>
+</Solution>
